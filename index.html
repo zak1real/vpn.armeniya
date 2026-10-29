@@ -189,7 +189,7 @@
 
     <div class="status" id="status">
         <span class="dot"></span>
-        <span id="status-text">Сервер настраивается — ссылка для подключения появится здесь.</span>
+        <span id="status-text">Откройте личную ссылку, которую вам прислали, — кнопки подключения появятся здесь.</span>
     </div>
 
     <section class="card">
@@ -242,8 +242,9 @@
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <script>
-    // Общая ссылка-подписка по умолчанию. Пока сервер не готов — пусто.
-    // Личную ссылку можно передать в адресе: index.html#sub=https://...
+    // Короткая личная ссылка: vpnarmeniya.site/#<subId> → SUB_BASE + subId.
+    // Полную ссылку тоже можно передать: #sub=https://...
+    const SUB_BASE = "https://sub.vpnarmeniya.site/1qtCvsxhXj/";
     const DEFAULT_SUB = "";
 
     const APPS = {
@@ -252,7 +253,10 @@
     };
 
     function readSub() {
-        const hash = new URLSearchParams(location.hash.slice(1)).get("sub");
+        const raw = location.hash.slice(1);
+        if (/^[A-Za-z0-9]{8,64}$/.test(raw)) return SUB_BASE + raw;
+
+        const hash = new URLSearchParams(raw).get("sub");
         const query = new URLSearchParams(location.search).get("sub");
         const sub = (hash || query || DEFAULT_SUB).trim();
         return /^https?:\/\//i.test(sub) ? sub : "";

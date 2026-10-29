@@ -1,0 +1,333 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<meta name="referrer" content="no-referrer">
+<title>Подключение к VPN</title>
+<style>
+    :root {
+        --bg: #0d1117;
+        --card: #161b22;
+        --line: #2a313c;
+        --text: #e6edf3;
+        --muted: #8b949e;
+        --accent: #3fb68b;
+        --accent-2: #4c8dff;
+        --warn: #d29922;
+        --radius: 16px;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+        margin: 0;
+        min-height: 100vh;
+        background: var(--bg);
+        color: var(--text);
+        font: 16px/1.5 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    }
+
+    .wrap {
+        max-width: 560px;
+        margin: 0 auto;
+        padding: 32px 16px 48px;
+    }
+
+    header { margin-bottom: 24px; }
+    h1 { margin: 0 0 6px; font-size: 28px; line-height: 1.2; }
+    .lead { margin: 0; color: var(--muted); }
+
+    .status {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin: 20px 0;
+        padding: 12px 14px;
+        border: 1px solid var(--line);
+        border-radius: 12px;
+        background: var(--card);
+        font-size: 15px;
+    }
+    .dot {
+        flex: none;
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        background: var(--warn);
+        box-shadow: 0 0 0 4px rgba(210, 153, 34, .15);
+    }
+    .status.is-ready .dot {
+        background: var(--accent);
+        box-shadow: 0 0 0 4px rgba(63, 182, 139, .15);
+    }
+
+    .card {
+        margin-bottom: 16px;
+        padding: 20px;
+        border: 1px solid var(--line);
+        border-radius: var(--radius);
+        background: var(--card);
+    }
+    .card h2 {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin: 0 0 14px;
+        font-size: 18px;
+    }
+    .num {
+        display: inline-grid;
+        place-items: center;
+        flex: none;
+        width: 26px;
+        height: 26px;
+        border-radius: 50%;
+        background: var(--line);
+        font-size: 14px;
+    }
+    .hint { margin: 10px 0 0; color: var(--muted); font-size: 14px; }
+
+    .apps { display: grid; gap: 12px; }
+    .app {
+        padding: 14px;
+        border: 1px solid var(--line);
+        border-radius: 12px;
+    }
+    .app-name { margin: 0 0 8px; font-weight: 600; }
+    .stores { display: flex; flex-wrap: wrap; gap: 8px; }
+    .stores a {
+        padding: 6px 12px;
+        border: 1px solid var(--line);
+        border-radius: 999px;
+        color: var(--text);
+        font-size: 14px;
+        text-decoration: none;
+    }
+    .stores a:hover { border-color: var(--muted); }
+    .stores a.is-mine { border-color: var(--accent-2); }
+
+    .btn {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        width: 100%;
+        min-height: 52px;
+        margin-bottom: 10px;
+        padding: 12px 16px;
+        border: 0;
+        border-radius: 12px;
+        color: #fff;
+        font: inherit;
+        font-weight: 600;
+        cursor: pointer;
+        text-decoration: none;
+    }
+    .btn-happ { background: var(--accent); }
+    .btn-incy { background: var(--accent-2); }
+    .btn-ghost {
+        border: 1px solid var(--line);
+        background: transparent;
+        color: var(--text);
+    }
+    .btn:disabled {
+        opacity: .4;
+        cursor: not-allowed;
+    }
+
+    .sub-box {
+        display: none;
+        margin-top: 6px;
+    }
+    .sub-box.is-shown { display: block; }
+    .sub-url {
+        padding: 10px 12px;
+        border-radius: 10px;
+        background: var(--bg);
+        color: var(--muted);
+        font: 13px/1.4 ui-monospace, Consolas, monospace;
+        word-break: break-all;
+    }
+    #qr {
+        display: grid;
+        place-items: center;
+        width: 216px;
+        margin: 14px auto 0;
+        padding: 8px;
+        border-radius: 12px;
+        background: #fff;
+    }
+    #qr img, #qr canvas { display: block; }
+
+    .notice {
+        display: none;
+        margin-top: 4px;
+        padding: 10px 12px;
+        border-left: 3px solid var(--warn);
+        border-radius: 8px;
+        background: rgba(210, 153, 34, .08);
+        font-size: 14px;
+    }
+    .notice.is-shown { display: block; }
+
+    footer {
+        margin-top: 28px;
+        color: var(--muted);
+        font-size: 13px;
+        text-align: center;
+    }
+</style>
+</head>
+<body>
+<main class="wrap">
+    <header>
+        <h1>Подключение к VPN</h1>
+        <p class="lead">Сервер в Армении. Три шага: поставить приложение, нажать кнопку, включить.</p>
+    </header>
+
+    <div class="status" id="status">
+        <span class="dot"></span>
+        <span id="status-text">Сервер настраивается — ссылка для подключения появится здесь.</span>
+    </div>
+
+    <section class="card">
+        <h2><span class="num">1</span>Установите приложение</h2>
+        <div class="apps">
+            <div class="app">
+                <p class="app-name">Happ</p>
+                <div class="stores">
+                    <a data-os="ios" href="https://apps.apple.com/app/happ-proxy-utility/id6504287215" target="_blank" rel="noopener">iPhone / Mac</a>
+                    <a data-os="android" href="https://play.google.com/store/apps/details?id=com.happproxy" target="_blank" rel="noopener">Android</a>
+                    <a data-os="desktop" href="https://www.happ.su/" target="_blank" rel="noopener">Windows и другие</a>
+                </div>
+            </div>
+            <div class="app">
+                <p class="app-name">INCY</p>
+                <div class="stores">
+                    <a data-os="ios" href="https://apps.apple.com/app/incy/id6756943388" target="_blank" rel="noopener">iPhone / Mac</a>
+                    <a data-os="android desktop" href="https://incy.cc/" target="_blank" rel="noopener">Android / Windows</a>
+                </div>
+            </div>
+        </div>
+        <p class="hint">Достаточно одного. INCY убрали из российского App Store — на iPhone с российским аккаунтом ставьте Happ.</p>
+    </section>
+
+    <section class="card">
+        <h2><span class="num">2</span>Добавьте подписку</h2>
+        <button class="btn btn-happ" id="open-happ" type="button" disabled>Открыть в Happ</button>
+        <button class="btn btn-incy" id="open-incy" type="button" disabled>Открыть в INCY</button>
+        <button class="btn btn-ghost" id="copy" type="button" disabled>Скопировать ссылку</button>
+
+        <div class="notice" id="not-installed">
+            Приложение не открылось? Установите его из шага 1 и нажмите кнопку ещё раз.
+            Или скопируйте ссылку и добавьте её вручную: «+» → «Вставить из буфера».
+        </div>
+
+        <div class="sub-box" id="sub-box">
+            <div class="sub-url" id="sub-url"></div>
+            <div id="qr" title="Отсканируйте камерой телефона в приложении"></div>
+            <p class="hint" style="text-align:center">С компьютера: отсканируйте QR-код в приложении на телефоне.</p>
+        </div>
+    </section>
+
+    <section class="card">
+        <h2><span class="num">3</span>Включите VPN</h2>
+        <p class="hint" style="margin:0">В приложении выберите сервер и нажмите большую кнопку подключения. При первом запуске телефон попросит разрешить добавление VPN-конфигурации — согласитесь.</p>
+    </section>
+
+    <footer>Ссылка личная — не пересылайте её другим.</footer>
+</main>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script>
+    // Общая ссылка-подписка по умолчанию. Пока сервер не готов — пусто.
+    // Личную ссылку можно передать в адресе: index.html#sub=https://...
+    const DEFAULT_SUB = "";
+
+    const APPS = {
+        happ: (sub) => "happ://add/" + sub,
+        incy: (sub) => "incy://import/" + sub
+    };
+
+    function readSub() {
+        const hash = new URLSearchParams(location.hash.slice(1)).get("sub");
+        const query = new URLSearchParams(location.search).get("sub");
+        const sub = (hash || query || DEFAULT_SUB).trim();
+        return /^https?:\/\//i.test(sub) ? sub : "";
+    }
+
+    function detectOs() {
+        const ua = navigator.userAgent;
+        if (/android/i.test(ua)) return "android";
+        if (/iphone|ipad|ipod|macintosh/i.test(ua) && "ontouchend" in document) return "ios";
+        if (/iphone|ipad|ipod/i.test(ua)) return "ios";
+        return "desktop";
+    }
+
+    function openApp(link) {
+        const notice = document.getElementById("not-installed");
+        notice.classList.remove("is-shown");
+
+        // Если приложение открылось, страница уйдёт в фон и подсказка не нужна.
+        let left = false;
+        const onHide = () => { if (document.hidden) left = true; };
+        document.addEventListener("visibilitychange", onHide);
+
+        location.href = link;
+
+        setTimeout(() => {
+            document.removeEventListener("visibilitychange", onHide);
+            if (!left) notice.classList.add("is-shown");
+        }, 1800);
+    }
+
+    async function copyText(text, btn) {
+        try {
+            await navigator.clipboard.writeText(text);
+        } catch (e) {
+            const area = document.createElement("textarea");
+            area.value = text;
+            document.body.appendChild(area);
+            area.select();
+            document.execCommand("copy");
+            area.remove();
+        }
+        const label = btn.textContent;
+        btn.textContent = "Скопировано ✓";
+        setTimeout(() => { btn.textContent = label; }, 1500);
+    }
+
+    const os = detectOs();
+    document.querySelectorAll(".stores a").forEach((a) => {
+        if (a.dataset.os.split(" ").includes(os)) a.classList.add("is-mine");
+    });
+
+    const sub = readSub();
+    if (sub) {
+        const status = document.getElementById("status");
+        status.classList.add("is-ready");
+        document.getElementById("status-text").textContent = "Сервер работает. Можно подключаться.";
+
+        const happ = document.getElementById("open-happ");
+        const incy = document.getElementById("open-incy");
+        const copy = document.getElementById("copy");
+        [happ, incy, copy].forEach((b) => { b.disabled = false; });
+
+        happ.addEventListener("click", () => openApp(APPS.happ(sub)));
+        incy.addEventListener("click", () => openApp(APPS.incy(sub)));
+        copy.addEventListener("click", () => copyText(sub, copy));
+
+        document.getElementById("sub-url").textContent = sub;
+        document.getElementById("sub-box").classList.add("is-shown");
+
+        if (window.QRCode) {
+            new QRCode(document.getElementById("qr"), { text: sub, width: 200, height: 200 });
+        } else {
+            document.getElementById("qr").style.display = "none";
+        }
+    }
+</script>
+</body>
+</html>

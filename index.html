@@ -2,239 +2,604 @@
 <html lang="ru">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="robots" content="noindex, nofollow">
 <meta name="referrer" content="no-referrer">
-<title>Подключение к VPN</title>
+<meta name="theme-color" content="#0a0c12">
+<title>Armenia VPN</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3E%3CclipPath id='c'%3E%3Crect width='30' height='30' rx='8'/%3E%3C/clipPath%3E%3Cg clip-path='url(%23c)'%3E%3Crect width='30' height='10' fill='%23D90012'/%3E%3Crect y='10' width='30' height='10' fill='%230033A0'/%3E%3Crect y='20' width='30' height='10' fill='%23F2A800'/%3E%3C/g%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
     :root {
-        --bg: #0d1117;
-        --card: #161b22;
-        --line: #2a313c;
-        --text: #e6edf3;
-        --muted: #8b949e;
-        --accent: #3fb68b;
-        --accent-2: #4c8dff;
-        --warn: #d29922;
-        --radius: 16px;
+        --bg: #0a0c12;
+        --surface: rgba(255, 255, 255, .04);
+        --surface-2: rgba(255, 255, 255, .07);
+        --line: rgba(255, 255, 255, .09);
+        --text: #eef1f6;
+        --muted: #8d95a5;
+        --red: #e5283a;
+        --blue: #3d6bff;
+        --apricot: #f2a800;
+        --green: #34d399;
+        --radius: 20px;
     }
 
     * { box-sizing: border-box; }
+
+    html { -webkit-text-size-adjust: 100%; }
 
     body {
         margin: 0;
         min-height: 100vh;
         background: var(--bg);
         color: var(--text);
-        font: 16px/1.5 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+        font: 16px/1.55 "Manrope", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+        overflow-x: hidden;
+    }
+
+    /* Мягкое свечение в цветах флага */
+    .glow {
+        position: fixed;
+        inset: -20vh -20vw auto;
+        height: 70vh;
+        pointer-events: none;
+        background:
+            radial-gradient(40% 50% at 20% 30%, rgba(229, 40, 58, .22), transparent 70%),
+            radial-gradient(40% 50% at 55% 20%, rgba(61, 107, 255, .22), transparent 70%),
+            radial-gradient(35% 45% at 85% 35%, rgba(242, 168, 0, .16), transparent 70%);
+        filter: blur(20px);
+        z-index: 0;
     }
 
     .wrap {
-        max-width: 560px;
+        position: relative;
+        z-index: 1;
+        max-width: 600px;
         margin: 0 auto;
-        padding: 32px 16px 48px;
+        padding: 40px 16px 56px;
     }
 
-    header { margin-bottom: 24px; }
-    h1 { margin: 0 0 6px; font-size: 28px; line-height: 1.2; }
-    .lead { margin: 0; color: var(--muted); }
-
-    .status {
+    /* ---------- шапка ---------- */
+    .brand {
         display: flex;
         align-items: center;
+        gap: 12px;
+        margin-bottom: 28px;
+    }
+    .flag {
+        display: grid;
+        grid-template-rows: repeat(3, 1fr);
+        flex: none;
+        width: 44px;
+        height: 44px;
+        overflow: hidden;
+        border-radius: 14px;
+        box-shadow: 0 8px 24px rgba(61, 107, 255, .25), inset 0 0 0 1px rgba(255, 255, 255, .12);
+    }
+    .flag i:nth-child(1) { background: #d90012; }
+    .flag i:nth-child(2) { background: #0033a0; }
+    .flag i:nth-child(3) { background: #f2a800; }
+    .brand-name { font-weight: 800; font-size: 20px; letter-spacing: -.01em; }
+    .brand-sub { color: var(--muted); font-size: 13px; }
+
+    h1 {
+        margin: 0 0 10px;
+        font-size: clamp(30px, 8vw, 42px);
+        line-height: 1.08;
+        letter-spacing: -.03em;
+        font-weight: 800;
+    }
+    .grad {
+        background: linear-gradient(90deg, #ff5a68, #6f8fff 55%, #ffc23d);
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+    }
+    .lead { margin: 0; color: var(--muted); font-size: 17px; }
+
+    .status {
+        display: inline-flex;
+        align-items: center;
         gap: 10px;
-        margin: 20px 0;
-        padding: 12px 14px;
+        margin: 22px 0 28px;
+        padding: 9px 14px 9px 12px;
         border: 1px solid var(--line);
-        border-radius: 12px;
-        background: var(--card);
-        font-size: 15px;
+        border-radius: 999px;
+        background: var(--surface);
+        font-size: 14px;
+        backdrop-filter: blur(10px);
     }
     .dot {
+        position: relative;
         flex: none;
-        width: 10px;
-        height: 10px;
+        width: 9px;
+        height: 9px;
         border-radius: 50%;
-        background: var(--warn);
-        box-shadow: 0 0 0 4px rgba(210, 153, 34, .15);
+        background: var(--apricot);
     }
-    .status.is-ready .dot {
-        background: var(--accent);
-        box-shadow: 0 0 0 4px rgba(63, 182, 139, .15);
+    .status.is-ready .dot { background: var(--green); }
+    .status.is-ready .dot::after {
+        content: "";
+        position: absolute;
+        inset: -4px;
+        border-radius: 50%;
+        border: 2px solid var(--green);
+        opacity: 0;
+        animation: ping 2s ease-out infinite;
+    }
+    @keyframes ping {
+        0% { transform: scale(.6); opacity: .7; }
+        100% { transform: scale(1.8); opacity: 0; }
     }
 
+    /* ---------- карточки шагов ---------- */
     .card {
-        margin-bottom: 16px;
-        padding: 20px;
+        margin-bottom: 14px;
+        padding: 22px;
         border: 1px solid var(--line);
         border-radius: var(--radius);
-        background: var(--card);
+        background: var(--surface);
+        backdrop-filter: blur(14px);
     }
     .card h2 {
         display: flex;
         align-items: center;
-        gap: 10px;
-        margin: 0 0 14px;
-        font-size: 18px;
+        gap: 12px;
+        margin: 0 0 16px;
+        font-size: 19px;
+        letter-spacing: -.01em;
     }
     .num {
         display: inline-grid;
         place-items: center;
         flex: none;
-        width: 26px;
-        height: 26px;
-        border-radius: 50%;
-        background: var(--line);
+        width: 30px;
+        height: 30px;
+        border-radius: 10px;
+        background: linear-gradient(135deg, var(--red), var(--blue));
         font-size: 14px;
+        font-weight: 800;
     }
-    .hint { margin: 10px 0 0; color: var(--muted); font-size: 14px; }
+    .hint { margin: 12px 0 0; color: var(--muted); font-size: 14px; }
 
-    .apps { display: grid; gap: 12px; }
-    .app {
-        padding: 14px;
-        border: 1px solid var(--line);
-        border-radius: 12px;
+    /* ---------- вкладки устройств ---------- */
+    .tabs {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 4px;
+        margin-bottom: 16px;
+        padding: 4px;
+        border-radius: 14px;
+        background: rgba(0, 0, 0, .35);
     }
-    .app-name { margin: 0 0 8px; font-weight: 600; }
-    .stores { display: flex; flex-wrap: wrap; gap: 8px; }
-    .stores a {
-        padding: 6px 12px;
+    .tab {
+        padding: 9px 4px;
+        border: 0;
+        border-radius: 10px;
+        background: transparent;
+        color: var(--muted);
+        font: inherit;
+        font-size: 14px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: background .2s, color .2s;
+    }
+    .tab[aria-selected="true"] { background: var(--surface-2); color: var(--text); }
+
+    .panel { display: none; }
+    .panel.is-active { display: block; }
+
+    .group-title {
+        margin: 18px 0 8px;
+        color: var(--muted);
+        font-size: 12px;
+        font-weight: 700;
+        letter-spacing: .08em;
+        text-transform: uppercase;
+    }
+    .group-title:first-child { margin-top: 0; }
+
+    .app {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 12px;
         border: 1px solid var(--line);
+        border-radius: 14px;
+        background: rgba(255, 255, 255, .02);
+    }
+    .app + .app { margin-top: 8px; }
+    .app-icon {
+        display: grid;
+        place-items: center;
+        flex: none;
+        width: 42px;
+        height: 42px;
+        border-radius: 12px;
+        font-weight: 800;
+        font-size: 17px;
+        color: #fff;
+    }
+    .ic-happ { background: linear-gradient(135deg, #22c58b, #0e8f6b); }
+    .ic-incy { background: linear-gradient(135deg, #5b8cff, #3346d3); }
+    .ic-onex { background: linear-gradient(135deg, #ff6a3d, #d4285a); }
+    .ic-kar  { background: linear-gradient(135deg, #a46bff, #6236d8); }
+    .ic-sr   { background: linear-gradient(135deg, #3a4253, #1d222c); }
+    .app-body { flex: 1; min-width: 0; }
+    .app-name { margin: 0; font-weight: 700; }
+    .app-note { margin: 1px 0 0; color: var(--muted); font-size: 13px; line-height: 1.35; }
+    .badge {
+        display: inline-block;
+        margin-left: 6px;
+        padding: 1px 7px;
         border-radius: 999px;
+        font-size: 11px;
+        font-weight: 700;
+        vertical-align: 2px;
+    }
+    .b-ok { background: rgba(52, 211, 153, .14); color: var(--green); }
+    .b-warn { background: rgba(242, 168, 0, .14); color: var(--apricot); }
+
+    .get {
+        flex: none;
+        padding: 8px 14px;
+        border-radius: 999px;
+        background: var(--surface-2);
         color: var(--text);
         font-size: 14px;
+        font-weight: 700;
         text-decoration: none;
+        white-space: nowrap;
+        transition: background .2s;
     }
-    .stores a:hover { border-color: var(--muted); }
-    .stores a.is-mine { border-color: var(--accent-2); }
+    .get:hover { background: rgba(255, 255, 255, .12); }
 
+    details {
+        margin-top: 12px;
+        border: 1px solid rgba(242, 168, 0, .25);
+        border-radius: 14px;
+        background: rgba(242, 168, 0, .05);
+    }
+    summary {
+        padding: 12px 14px;
+        font-size: 14px;
+        font-weight: 700;
+        cursor: pointer;
+        list-style: none;
+    }
+    summary::-webkit-details-marker { display: none; }
+    summary::after { content: "＋"; float: right; color: var(--apricot); }
+    details[open] summary::after { content: "－"; }
+    details ol {
+        margin: 0;
+        padding: 0 16px 14px 34px;
+        color: #cfd5df;
+        font-size: 14px;
+    }
+    details li + li { margin-top: 6px; }
+    details b { color: var(--text); }
+
+    /* ---------- кнопки подключения ---------- */
     .btn {
         display: flex;
         align-items: center;
         justify-content: center;
-        gap: 8px;
+        gap: 10px;
         width: 100%;
-        min-height: 52px;
+        min-height: 54px;
         margin-bottom: 10px;
         padding: 12px 16px;
         border: 0;
-        border-radius: 12px;
+        border-radius: 14px;
         color: #fff;
         font: inherit;
-        font-weight: 600;
+        font-weight: 700;
         cursor: pointer;
-        text-decoration: none;
+        transition: transform .15s, filter .2s, opacity .2s;
     }
-    .btn-happ { background: var(--accent); }
-    .btn-incy { background: var(--accent-2); }
-    .btn-ghost {
-        border: 1px solid var(--line);
-        background: transparent;
-        color: var(--text);
-    }
-    .btn:disabled {
-        opacity: .4;
-        cursor: not-allowed;
-    }
+    .btn:active { transform: scale(.98); }
+    .btn:hover:not(:disabled) { filter: brightness(1.08); }
+    .btn-happ { background: linear-gradient(135deg, #22c58b, #0e8f6b); box-shadow: 0 10px 26px rgba(34, 197, 139, .22); }
+    .btn-incy { background: linear-gradient(135deg, #5b8cff, #3346d3); box-shadow: 0 10px 26px rgba(61, 107, 255, .22); }
+    .btn-ghost { border: 1px solid var(--line); background: var(--surface); color: var(--text); }
+    .btn-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .btn-sm { min-height: 46px; font-size: 15px; }
+    .btn-onex { background: linear-gradient(135deg, #ff6a3d, #d4285a); }
+    .btn-kar { background: linear-gradient(135deg, #a46bff, #6236d8); }
 
-    .sub-box {
-        display: none;
-        margin-top: 6px;
-    }
-    .sub-box.is-shown { display: block; }
-    .sub-url {
-        padding: 10px 12px;
-        border-radius: 10px;
-        background: var(--bg);
-        color: var(--muted);
-        font: 13px/1.4 ui-monospace, Consolas, monospace;
-        word-break: break-all;
-    }
-    #qr {
-        display: grid;
-        place-items: center;
-        width: 216px;
-        margin: 14px auto 0;
-        padding: 8px;
-        border-radius: 12px;
-        background: #fff;
-    }
-    #qr img, #qr canvas { display: block; }
+    .howto { margin-top: 18px; }
+    .howto details { margin-top: 8px; border-color: var(--line); background: rgba(255, 255, 255, .02); }
+    .howto summary { display: flex; align-items: center; gap: 10px; }
+    .howto summary::after { content: "＋"; margin-left: auto; color: var(--muted); }
+    .howto details[open] summary::after { content: "－"; }
+    .howto .app-icon { width: 28px; height: 28px; border-radius: 8px; font-size: 13px; }
+    .btn:disabled { opacity: .35; cursor: not-allowed; box-shadow: none; }
+    .btn svg { width: 18px; height: 18px; flex: none; }
 
     .notice {
         display: none;
-        margin-top: 4px;
-        padding: 10px 12px;
-        border-left: 3px solid var(--warn);
-        border-radius: 8px;
-        background: rgba(210, 153, 34, .08);
+        margin: 2px 0 10px;
+        padding: 12px 14px;
+        border-left: 3px solid var(--apricot);
+        border-radius: 10px;
+        background: rgba(242, 168, 0, .08);
         font-size: 14px;
     }
     .notice.is-shown { display: block; }
 
+    .sub-box { display: none; margin-top: 8px; }
+    .sub-box.is-shown { display: block; }
+    .sub-url {
+        padding: 12px 14px;
+        border: 1px dashed var(--line);
+        border-radius: 12px;
+        background: rgba(0, 0, 0, .3);
+        color: var(--muted);
+        font: 13px/1.45 ui-monospace, "SF Mono", Consolas, monospace;
+        word-break: break-all;
+    }
+    .qr-wrap { margin-top: 16px; text-align: center; }
+    #qr {
+        display: inline-grid;
+        place-items: center;
+        padding: 10px;
+        border-radius: 16px;
+        background: #fff;
+    }
+    #qr img, #qr canvas { display: block; }
+
+    /* ---------- профили ---------- */
+    .profiles { display: grid; gap: 8px; margin: 0; padding: 0; list-style: none; }
+    .profiles li {
+        padding: 12px 14px;
+        border: 1px solid var(--line);
+        border-radius: 12px;
+        background: rgba(255, 255, 255, .02);
+        font-size: 14px;
+        color: var(--muted);
+    }
+    .profiles b { display: block; color: var(--text); font-size: 15px; }
+
     footer {
-        margin-top: 28px;
+        margin-top: 30px;
         color: var(--muted);
         font-size: 13px;
         text-align: center;
     }
+
+    @media (prefers-reduced-motion: reduce) {
+        .status.is-ready .dot::after { animation: none; }
+    }
 </style>
 </head>
 <body>
+<div class="glow" aria-hidden="true"></div>
+
 <main class="wrap">
-    <header>
-        <h1>Подключение к VPN</h1>
-        <p class="lead">Сервер в Армении. Три шага: поставить приложение, нажать кнопку, включить.</p>
-    </header>
+    <div class="brand">
+        <div class="flag" aria-hidden="true"><i></i><i></i><i></i></div>
+        <div>
+            <div class="brand-name">Armenia VPN</div>
+            <div class="brand-sub">Сервер в Ереване</div>
+        </div>
+    </div>
+
+    <h1>Подключитесь <span class="grad">за&nbsp;минуту</span></h1>
+    <p class="lead">Поставьте приложение, нажмите кнопку — и включите VPN.</p>
 
     <div class="status" id="status">
         <span class="dot"></span>
-        <span id="status-text">Откройте личную ссылку, которую вам прислали, — кнопки подключения появятся здесь.</span>
+        <span id="status-text">Откройте личную ссылку, которую вам прислали</span>
     </div>
 
+    <!-- 1. Приложение -->
     <section class="card">
         <h2><span class="num">1</span>Установите приложение</h2>
-        <div class="apps">
+
+        <div class="tabs" role="tablist">
+            <button class="tab" role="tab" data-tab="ios" aria-selected="false" type="button">iPhone</button>
+            <button class="tab" role="tab" data-tab="android" aria-selected="false" type="button">Android</button>
+            <button class="tab" role="tab" data-tab="desktop" aria-selected="false" type="button">Компьютер</button>
+        </div>
+
+        <div class="panel" data-panel="ios">
+            <p class="group-title">Есть в российском App Store</p>
             <div class="app">
-                <p class="app-name">Happ</p>
-                <div class="stores">
-                    <a data-os="ios" href="https://apps.apple.com/app/happ-proxy-utility/id6504287215" target="_blank" rel="noopener">iPhone / Mac</a>
-                    <a data-os="android" href="https://play.google.com/store/apps/details?id=com.happproxy" target="_blank" rel="noopener">Android</a>
-                    <a data-os="desktop" href="https://www.happ.su/" target="_blank" rel="noopener">Windows и другие</a>
+                <div class="app-icon ic-onex">O</div>
+                <div class="app-body">
+                    <p class="app-name">OneXray <span class="badge b-ok">советуем</span></p>
+                    <p class="app-note">Бесплатный, на том же движке, что Happ. Работают все профили.</p>
                 </div>
+                <a class="get" href="https://apps.apple.com/app/onexray/id6745748773" target="_blank" rel="noopener">Скачать</a>
             </div>
             <div class="app">
-                <p class="app-name">INCY</p>
-                <div class="stores">
-                    <a data-os="ios" href="https://apps.apple.com/app/incy/id6756943388" target="_blank" rel="noopener">iPhone / Mac</a>
-                    <a data-os="android desktop" href="https://incy.cc/" target="_blank" rel="noopener">Android / Windows</a>
+                <div class="app-icon ic-kar">K</div>
+                <div class="app-body">
+                    <p class="app-name">Karing</p>
+                    <p class="app-note">Бесплатный. Профиль «mobile XHTTP» может не работать.</p>
                 </div>
+                <a class="get" href="https://apps.apple.com/app/karing/id6472431552" target="_blank" rel="noopener">Скачать</a>
+            </div>
+            <div class="app">
+                <div class="app-icon ic-sr">S</div>
+                <div class="app-body">
+                    <p class="app-name">Shadowrocket</p>
+                    <p class="app-note">Платный, покупается один раз.</p>
+                </div>
+                <a class="get" href="https://apps.apple.com/app/shadowrocket/id932747118" target="_blank" rel="noopener">Купить</a>
+            </div>
+
+            <p class="group-title">Нужен Apple ID другой страны</p>
+            <div class="app">
+                <div class="app-icon ic-happ">H</div>
+                <div class="app-body">
+                    <p class="app-name">Happ <span class="badge b-warn">не в РФ</span></p>
+                    <p class="app-note">Удобнее всего — кнопка «Открыть в Happ» ниже.</p>
+                </div>
+                <a class="get" href="https://apps.apple.com/app/happ-proxy-utility/id6504287215" target="_blank" rel="noopener">App Store</a>
+            </div>
+            <div class="app">
+                <div class="app-icon ic-incy">I</div>
+                <div class="app-body">
+                    <p class="app-name">INCY <span class="badge b-warn">не в РФ</span></p>
+                    <p class="app-note">Тоже открывается кнопкой ниже.</p>
+                </div>
+                <a class="get" href="https://apps.apple.com/app/incy/id6756943388" target="_blank" rel="noopener">App Store</a>
+            </div>
+
+            <details>
+                <summary>Как скачать Happ или INCY с российским iPhone</summary>
+                <ol>
+                    <li>На <b>appleid.apple.com</b> создайте новый Apple ID, страна — <b>Казахстан</b> или <b>Армения</b>. Способ оплаты — <b>«Нет»</b>, для бесплатных приложений карта не нужна.</li>
+                    <li>На iPhone: <b>Настройки → ваше имя → Медиаматериалы и покупки → Выйти</b>. Только оттуда — iCloud, фото и контакты останутся на месте.</li>
+                    <li>Войдите там же под новым Apple ID и скачайте Happ или INCY.</li>
+                    <li>Потом можно вернуть свой аккаунт — приложение останется. Для обновлений снова зайдите под новым ID.</li>
+                </ol>
+            </details>
+        </div>
+
+        <div class="panel" data-panel="android">
+            <div class="app">
+                <div class="app-icon ic-happ">H</div>
+                <div class="app-body">
+                    <p class="app-name">Happ <span class="badge b-ok">советуем</span></p>
+                    <p class="app-note">Бесплатный, в Google Play.</p>
+                </div>
+                <a class="get" href="https://play.google.com/store/apps/details?id=com.happproxy" target="_blank" rel="noopener">Google Play</a>
+            </div>
+            <div class="app">
+                <div class="app-icon ic-incy">I</div>
+                <div class="app-body">
+                    <p class="app-name">INCY</p>
+                    <p class="app-note">Скачивается с сайта разработчика.</p>
+                </div>
+                <a class="get" href="https://incy.cc/" target="_blank" rel="noopener">Сайт</a>
             </div>
         </div>
-        <p class="hint">Достаточно одного. INCY убрали из российского App Store — на iPhone с российским аккаунтом ставьте Happ.</p>
+
+        <div class="panel" data-panel="desktop">
+            <div class="app">
+                <div class="app-icon ic-happ">H</div>
+                <div class="app-body">
+                    <p class="app-name">Happ</p>
+                    <p class="app-note">Windows, macOS, Linux.</p>
+                </div>
+                <a class="get" href="https://www.happ.su/" target="_blank" rel="noopener">Сайт</a>
+            </div>
+            <div class="app">
+                <div class="app-icon ic-incy">I</div>
+                <div class="app-body">
+                    <p class="app-name">INCY</p>
+                    <p class="app-note">Windows и macOS.</p>
+                </div>
+                <a class="get" href="https://incy.cc/" target="_blank" rel="noopener">Сайт</a>
+            </div>
+        </div>
+
+        <p class="hint">Достаточно одного приложения.</p>
     </section>
 
+    <!-- 2. Подписка -->
     <section class="card">
         <h2><span class="num">2</span>Добавьте подписку</h2>
-        <button class="btn btn-happ" id="open-happ" type="button" disabled>Открыть в Happ</button>
-        <button class="btn btn-incy" id="open-incy" type="button" disabled>Открыть в INCY</button>
-        <button class="btn btn-ghost" id="copy" type="button" disabled>Скопировать ссылку</button>
+
+        <button class="btn btn-happ" id="open-happ" type="button" disabled>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7M8 7h9v9"/></svg>
+            Открыть в Happ
+        </button>
+        <button class="btn btn-incy" id="open-incy" type="button" disabled>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7M8 7h9v9"/></svg>
+            Открыть в INCY
+        </button>
+        <div class="btn-row">
+            <button class="btn btn-sm btn-onex" id="open-onexray" type="button" disabled>OneXray</button>
+            <button class="btn btn-sm btn-kar" id="open-karing" type="button" disabled>Karing</button>
+        </div>
+        <button class="btn btn-ghost" id="copy" type="button" disabled>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg>
+            <span id="copy-label">Скопировать ссылку</span>
+        </button>
 
         <div class="notice" id="not-installed">
             Приложение не открылось? Установите его из шага 1 и нажмите кнопку ещё раз.
-            Или скопируйте ссылку и добавьте её вручную: «+» → «Вставить из буфера».
+            Или скопируйте ссылку и добавьте вручную: «+» → «Из буфера».
+        </div>
+
+        <div class="howto">
+            <p class="group-title">Как добавить вручную</p>
+            <p class="hint" style="margin:0 0 4px">Если кнопка не сработала: нажмите «Скопировать ссылку», затем сделайте так в своём приложении.</p>
+
+            <details>
+                <summary><span class="app-icon ic-happ">H</span>Happ</summary>
+                <ol>
+                    <li>Откройте Happ и нажмите <b>«+»</b> в правом верхнем углу.</li>
+                    <li>Выберите <b>«Вставить из буфера»</b>.</li>
+                    <li>Появится подписка «Armenia VPN» с серверами — выберите сервер и подключайтесь.</li>
+                </ol>
+            </details>
+            <details>
+                <summary><span class="app-icon ic-incy">I</span>INCY</summary>
+                <ol>
+                    <li>Откройте раздел <b>«Профили»</b> и нажмите <b>«+»</b>.</li>
+                    <li>Выберите <b>«Из буфера обмена»</b>.</li>
+                    <li>При первом добавлении подождите до пары минут, пока загрузятся гео-файлы.</li>
+                </ol>
+            </details>
+            <details>
+                <summary><span class="app-icon ic-onex">O</span>OneXray</summary>
+                <ol>
+                    <li>Откройте раздел подписок (<b>Subscriptions</b>) и нажмите <b>«+»</b>.</li>
+                    <li>Вставьте ссылку в поле <b>URL</b>, название — любое, например «Armenia».</li>
+                    <li>Сохраните и обновите подписку — появятся серверы.</li>
+                </ol>
+            </details>
+            <details>
+                <summary><span class="app-icon ic-kar">K</span>Karing</summary>
+                <ol>
+                    <li>На главном экране нажмите <b>«+»</b> (добавить профиль).</li>
+                    <li>Выберите <b>импорт по ссылке</b> и вставьте ссылку, название — любое.</li>
+                    <li>Сохраните. Профиль «mobile XHTTP» в Karing может не работать — используйте остальные.</li>
+                </ol>
+            </details>
+            <details>
+                <summary><span class="app-icon ic-sr">S</span>Shadowrocket</summary>
+                <ol>
+                    <li>Нажмите <b>«+»</b> в правом верхнем углу.</li>
+                    <li>В поле <b>Type</b> выберите <b>Subscribe</b>.</li>
+                    <li>В поле <b>URL</b> вставьте ссылку, в <b>Remark</b> — «Armenia», нажмите <b>Done</b>.</li>
+                </ol>
+            </details>
+            <details>
+                <summary><span class="app-icon ic-sr">+</span>Другое приложение</summary>
+                <ol>
+                    <li>Подойдёт любой клиент с поддержкой VLESS Reality: v2rayNG, Hiddify, Streisand, v2RayTun и другие.</li>
+                    <li>Ищите кнопку <b>«+»</b> и пункт <b>«Импорт из буфера»</b>, <b>«Добавить подписку»</b> или <b>«Subscription»</b>.</li>
+                    <li>Если приложение просит ключ, а не подписку, — вставляйте ту же ссылку: оно само скачает серверы.</li>
+                </ol>
+            </details>
         </div>
 
         <div class="sub-box" id="sub-box">
+            <p class="group-title" style="margin-top:18px">Ваша ссылка-подписка</p>
             <div class="sub-url" id="sub-url"></div>
-            <div id="qr" title="Отсканируйте камерой телефона в приложении"></div>
-            <p class="hint" style="text-align:center">С компьютера: отсканируйте QR-код в приложении на телефоне.</p>
+            <div class="qr-wrap">
+                <div id="qr" title="Отсканируйте в приложении на телефоне"></div>
+                <p class="hint">С компьютера: отсканируйте QR-код в приложении на телефоне.</p>
+            </div>
         </div>
     </section>
 
+    <!-- 3. Включить -->
     <section class="card">
         <h2><span class="num">3</span>Включите VPN</h2>
-        <p class="hint" style="margin:0">В приложении выберите сервер и нажмите большую кнопку подключения. При первом запуске телефон попросит разрешить добавление VPN-конфигурации — согласитесь.</p>
+        <p class="hint" style="margin:0 0 14px">Выберите профиль и нажмите кнопку подключения. При первом запуске телефон попросит разрешить VPN — согласитесь.</p>
+        <ul class="profiles">
+            <li><b>🇦🇲 Armenia-ваше имя</b>Основной — для Wi-Fi и домашнего интернета.</li>
+            <li><b>🇦🇲 Armenia (mobile XHTTP)</b>Если не работает мобильный интернет — попробуйте этот.</li>
+            <li><b>🇦🇲 Armenia (mobile 2)</b>Запасной для мобильной сети.</li>
+        </ul>
     </section>
 
     <footer>Ссылка личная — не пересылайте её другим.</footer>
@@ -249,7 +614,9 @@
 
     const APPS = {
         happ: (sub) => "happ://add/" + sub,
-        incy: (sub) => "incy://import/" + sub
+        incy: (sub) => "incy://import/" + sub,
+        onexray: (sub) => "onexray://onexray.com/sub/add?url=" + encodeURIComponent(sub),
+        karing: (sub) => "karing://install-config?url=" + encodeURIComponent(sub) + "&name=Armenia%20VPN"
     };
 
     function readSub() {
@@ -265,9 +632,18 @@
     function detectOs() {
         const ua = navigator.userAgent;
         if (/android/i.test(ua)) return "android";
-        if (/iphone|ipad|ipod|macintosh/i.test(ua) && "ontouchend" in document) return "ios";
         if (/iphone|ipad|ipod/i.test(ua)) return "ios";
+        if (/macintosh/i.test(ua) && "ontouchend" in document) return "ios";
         return "desktop";
+    }
+
+    function selectTab(name) {
+        document.querySelectorAll(".tab").forEach((t) => {
+            t.setAttribute("aria-selected", String(t.dataset.tab === name));
+        });
+        document.querySelectorAll(".panel").forEach((p) => {
+            p.classList.toggle("is-active", p.dataset.panel === name);
+        });
     }
 
     function openApp(link) {
@@ -287,7 +663,7 @@
         }, 1800);
     }
 
-    async function copyText(text, btn) {
+    async function copyText(text, label) {
         try {
             await navigator.clipboard.writeText(text);
         } catch (e) {
@@ -298,38 +674,41 @@
             document.execCommand("copy");
             area.remove();
         }
-        const label = btn.textContent;
-        btn.textContent = "Скопировано ✓";
-        setTimeout(() => { btn.textContent = label; }, 1500);
+        const old = label.textContent;
+        label.textContent = "Скопировано ✓";
+        setTimeout(() => { label.textContent = old; }, 1500);
     }
 
-    const os = detectOs();
-    document.querySelectorAll(".stores a").forEach((a) => {
-        if (a.dataset.os.split(" ").includes(os)) a.classList.add("is-mine");
+    document.querySelectorAll(".tab").forEach((t) => {
+        t.addEventListener("click", () => selectTab(t.dataset.tab));
     });
+    selectTab(detectOs());
 
     const sub = readSub();
     if (sub) {
-        const status = document.getElementById("status");
-        status.classList.add("is-ready");
-        document.getElementById("status-text").textContent = "Сервер работает. Можно подключаться.";
+        document.getElementById("status").classList.add("is-ready");
+        document.getElementById("status-text").textContent = "Сервер работает — можно подключаться";
 
         const happ = document.getElementById("open-happ");
         const incy = document.getElementById("open-incy");
+        const onexray = document.getElementById("open-onexray");
+        const karing = document.getElementById("open-karing");
         const copy = document.getElementById("copy");
-        [happ, incy, copy].forEach((b) => { b.disabled = false; });
+        [happ, incy, onexray, karing, copy].forEach((b) => { b.disabled = false; });
 
         happ.addEventListener("click", () => openApp(APPS.happ(sub)));
         incy.addEventListener("click", () => openApp(APPS.incy(sub)));
-        copy.addEventListener("click", () => copyText(sub, copy));
+        onexray.addEventListener("click", () => openApp(APPS.onexray(sub)));
+        karing.addEventListener("click", () => openApp(APPS.karing(sub)));
+        copy.addEventListener("click", () => copyText(sub, document.getElementById("copy-label")));
 
         document.getElementById("sub-url").textContent = sub;
         document.getElementById("sub-box").classList.add("is-shown");
 
         if (window.QRCode) {
-            new QRCode(document.getElementById("qr"), { text: sub, width: 200, height: 200 });
+            new QRCode(document.getElementById("qr"), { text: sub, width: 190, height: 190 });
         } else {
-            document.getElementById("qr").style.display = "none";
+            document.querySelector(".qr-wrap").style.display = "none";
         }
     }
 </script>
